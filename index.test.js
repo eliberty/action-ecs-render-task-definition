@@ -16,7 +16,8 @@ describe('Render task definition', () => {
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('web')                  // container-name
-            .mockReturnValueOnce('nginx:latest');        // image
+            .mockReturnValueOnce('nginx:latest')         // image
+            .mockReturnValueOnce('zorg');                // wp password
 
         process.env = Object.assign(process.env, { GITHUB_WORKSPACE: __dirname });
         process.env = Object.assign(process.env, { RUNNER_TEMP: '/tmp' });
@@ -32,7 +33,13 @@ describe('Render task definition', () => {
             containerDefinitions: [
                 {
                     name: "web",
-                    image: "some-other-image"
+                    image: "some-other-image",
+                    environment: [
+                        {
+                            "name": "WORDPRESS_DB_PASSWORD",
+                            "value": "replaceme"
+                        },
+                    ]
                 },
                 {
                     name: "sidecar",
@@ -57,7 +64,13 @@ describe('Render task definition', () => {
                 containerDefinitions: [
                     {
                         name: "web",
-                        image: "nginx:latest"
+                        image: "nginx:latest",
+                        environment: [
+                            {
+                                "name": "WORDPRESS_DB_PASSWORD",
+                                "value": "zorg"
+                            },
+                        ]
                     },
                     {
                         name: "sidecar",

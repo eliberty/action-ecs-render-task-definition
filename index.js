@@ -9,6 +9,7 @@ async function run() {
     const taskDefinitionFile = core.getInput('task-definition', { required: true });
     const containerName = core.getInput('container-name', { required: true });
     const imageURI = core.getInput('image', { required: true });
+    const wordpressDbPassword = core.getInput('wordpress-db-password', { required: true})
 
     // Parse the task definition
     const taskDefPath = path.isAbsolute(taskDefinitionFile) ?
@@ -16,7 +17,7 @@ async function run() {
       path.join(process.env.GITHUB_WORKSPACE, taskDefinitionFile);
     if (!fs.existsSync(taskDefPath)) {
       throw new Error(`Task definition file does not exist: ${taskDefinitionFile}`);
-    }
+    } 
     const taskDefContents = require(taskDefPath);
 
     // Insert the image URI
@@ -30,6 +31,14 @@ async function run() {
       throw new Error('Invalid task definition: Could not find container definition with matching name');
     }
     containerDef.image = imageURI;
+
+    //updating db password
+    for (let i = 0; i < containerDef.environment.length; i++) {
+      const ev = containerDef.environment[i];
+      if (ev.name === 'WORDPRESS_DB_PASSWORD') {
+        containerDef.environment[i].value = wordpressDbPassword;
+      }
+    }
 
     // Write out a new task definition file
     var updatedTaskDefFile = tmp.fileSync({
