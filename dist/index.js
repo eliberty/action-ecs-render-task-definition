@@ -1083,7 +1083,6 @@ async function run() {
     const taskDefinitionFile = core.getInput('task-definition', { required: true });
     const containerName = core.getInput('container-name', { required: true });
     const imageURI = core.getInput('image', { required: true });
-    const wordpressDbPassword = core.getInput('wordpress-db-password', { required: true})
 
     // Parse the task definition
     const taskDefPath = path.isAbsolute(taskDefinitionFile) ?
@@ -1106,13 +1105,27 @@ async function run() {
     }
     containerDef.image = imageURI;
 
-    //updating db password
-    for (let i = 0; i < containerDef.environment.length; i++) {
-      const ev = containerDef.environment[i];
-      if (ev.name === 'WORDPRESS_DB_PASSWORD') {
-        containerDef.environment[i].value = wordpressDbPassword;
+    Object.keys(process.env).forEach(function(key) {
+      if (key.substring(0, 5) == 'TASK_') {
+        let realkey = key.substring(5);
+        let found = false;
+        for (let i = 0; i < containerDef.environment.length; i++) {
+          const ev = containerDef.environment[i];
+          if (ev.name === realkey) {
+            containerDef.environment[i].value = process.env[key];
+            found = true;
+          }
+        }
+
+        if (found == false) {
+          containerDef.environment.push({
+            name: realkey,
+            value: process.env[key]
+          });
+        }
       }
-    }
+    });
+  
 
     // Write out a new task definition file
     var updatedTaskDefFile = tmp.fileSync({
