@@ -16,11 +16,12 @@ describe('Render task definition', () => {
             .fn()
             .mockReturnValueOnce('task-definition.json') // task-definition
             .mockReturnValueOnce('web')                  // container-name
-            .mockReturnValueOnce('nginx:latest')         // image
-            .mockReturnValueOnce('zorg');                // wp password
+            .mockReturnValueOnce('nginx:latest');        // wp password
 
         process.env = Object.assign(process.env, { GITHUB_WORKSPACE: __dirname });
         process.env = Object.assign(process.env, { RUNNER_TEMP: '/tmp' });
+        process.env = Object.assign(process.env, { TASK_WORDPRESS_DB_PASSWORD: 'zorg' });
+        process.env = Object.assign(process.env, { TASK_SECOND_VAR_DEF: 'boo' });
 
         tmp.fileSync.mockReturnValue({
             name: 'new-task-def-file-name'
@@ -70,6 +71,10 @@ describe('Render task definition', () => {
                                 "name": "WORDPRESS_DB_PASSWORD",
                                 "value": "zorg"
                             },
+                            {
+                                "name": "SECOND_VAR_DEF",
+                                "value": "boo"
+                            }
                         ]
                     },
                     {
