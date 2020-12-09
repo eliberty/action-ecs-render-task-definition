@@ -16,15 +16,15 @@ Inserts a container image URI into an Amazon ECS task definition JSON file, crea
 
 To insert the image URI `amazon/amazon-ecs-sample:latest` as the image for the `web` container in the task definition file, and then deploy the edited task definition file to ECS:
 
-If you want to pass env vars to task container , you can add it to action env array with TASK_ prefix
-An env var like  TASK_WP_LOGIN will be integrated as WP_LOGIN into container env
+If you want to pass env vars to task containers , you can add it to action env array with TASK_ prefix
+An env var like  TASK_DB_URL will be integrated as DB_URL into container env
 
 ```yaml
     - name: Render Amazon ECS task definition
       id: render-web-container
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      uses: eliberty/amazon-ecs-render-task-definition@v1
       env:
-        TASK_WP_LOGIN: bla
+        TASK_DB_URL: psql://foo:bar@server/database
       with:
         task-definition: task-definition.json
         container-name: web
@@ -46,7 +46,7 @@ input of the second:
 ```yaml
     - name: Render Amazon ECS task definition for first container
       id: render-web-container
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      uses: eliberty/amazon-ecs-render-task-definition@v1
       with:
         task-definition: task-definition.json
         container-name: web
@@ -54,7 +54,7 @@ input of the second:
 
     - name: Modify Amazon ECS task definition with second container
       id: render-app-container
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      uses: eliberty/amazon-ecs-render-task-definition@v1
       with:
         task-definition: ${{ steps.render-web-container.outputs.task-definition }}
         container-name: app
